@@ -6,13 +6,11 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Bytes32ArrayUtils } from "./lib/Bytes32ArrayUtils.sol";
 import { Uint256ArrayUtils } from "./lib/Uint256ArrayUtils.sol";
 
-import { IPoseidon } from "./interfaces/IPoseidon.sol";
-import { IProcessor } from "./interfaces/IProcessor.sol";
-
+import { Groth16Verifier } from "./verifiers/verifier.sol";
 
 pragma solidity ^0.8.18;
 
-contract LCContract is Verifier {
+contract LCContract is Groth16Verifier {
     enum FormOfDocCredit { Irrevocable, Irrevocable_Transferable }
     enum ApplicableRules { EUCP_LATEST_VERSION, EUCPURR_LATEST_VERSION, OTHR, UCP_LATEST_VERSION,  UCPURR_LATEST_VERSION }
     enum PartialShipments { NotAllowed, Allowed, Conditional }
