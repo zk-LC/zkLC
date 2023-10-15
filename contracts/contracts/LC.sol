@@ -18,18 +18,6 @@ contract LCContract is Groth16Verifier {
     enum ConfirmationInstructions { Confirm, MayAdd, Without }
 
     
-    struct Actor {
-        string name;
-        string addressIRL;
-        address addressEOA;
-    }
-
-    struct CurrencyCodeAndAmount {
-        string currencyCode;        // ISO 4217
-        address currencyAddress;    // Address of the currency contract.
-        uint256 amount;
-    }
-
     // todo: fix this. Make some of it addresses.
     struct AvailableWithBy {
         string BY_ACCEPTANCE;
@@ -38,7 +26,6 @@ contract LCContract is Groth16Verifier {
         string BY_NEGOTIATION;
         string BY_PAYMENT;
     }
-
 
     // TODO: 
     // 1. Update docCreditNumber to be a hash of the LC.
@@ -50,18 +37,49 @@ contract LCContract is Groth16Verifier {
     // }
     // 3. Update dateOfIssue to the YYMMDD format.
 
+    // ------------- LC structs -----------------
+
+    struct ActorDetails {
+        address addressEOA;
+        string addressIRL;
+    }
+
+    struct IssueDetails {
+        uint256 dateOfIssue;
+        string applicableRules;
+        uint256 dateAndPlaceOfExpiry;
+    }
+
+    struct PortDetails {
+        string portOfLoading;
+        string portOfDischarge;
+    }
+
+    struct ShippingDetails {
+        PartialShipments partialShipments;
+        Transshipment transshipment;
+        PortDetails portDetails;
+        // string placeOfFinalDestination;
+        // string latestDateOfShipment;
+        // string shipmentPeriod;
+    }
+
+    struct CurrencyDetails {
+        string currencyCode;        // ISO 4217
+        address currencyAddress;    // Address of the currency contract.
+        uint256 amount;
+    }
+
     struct LC {
         uint256 sequenceOfTotal;
         FormOfDocCredit formOfDocCredit;
         uint256 docCreditNumber;
         // string referenceToPreAdvice;
-        uint256 dateOfIssue;
-        string applicableRules;
-        uint256 dateAndPlaceOfExpiry;
+        IssueDetails issueDetails;
         // string applicantBank
-        Actor applicant;
-        Actor beneficiary;
-        CurrencyCodeAndAmount currencyCode;
+        ActorDetails applicant;
+        ActorDetails beneficiary;
+        CurrencyDetails currencyDetails;
         // string percentageCreditAmountTolerance
         // string additionalAmountsCovered
         AvailableWithBy availableWithBy;
@@ -69,13 +87,7 @@ contract LCContract is Groth16Verifier {
         // string drawee;
         // string mixedPaymentDetails;
         // string deferredPaymentDetails;
-        PartialShipments partialShipments;
-        Transshipment transshipment;
-        string portOfLoading;
-        string portOfDischarge;
-        // string placeOfFinalDestination;
-        // string latestDateOfShipment;
-        // string shipmentPeriod;
+        ShippingDetails shippingDetails;
         string descriptionOfGoodsAndOrServices;
         string documentsRequired;
         string additionalConditions;
@@ -97,63 +109,65 @@ contract LCContract is Groth16Verifier {
     function createLC(
         string memory _applicableRules,
         uint256 _dateAndPlaceOfExpiry,      // Just pass in the block.timestamp for now.
-        address _applicantEOA,
-        string memory _applicantIRLHashed,
-        address _beneficiaryEOA,
-        string memory _beneficiaryIRLHashed,
+        ActorDetails memory _applicant,
+        ActorDetails memory _beneficiary,
         uint256 _currencyAmount,
-        string memory _availableWithChainId,
-        string memory _availableWithDeploymentAddress,
-        string memory _portOfLoading,
-        string memory _portOfDischarge,
+        PortDetails memory _portDetails,
         string memory _descriptionOfGoodsAndOrServices,
         ConfirmationInstructions _confirmationInstructions
     ) external {
         LC memory newLC;
 
+        // Standard details
         newLC.sequenceOfTotal = 1;
         newLC.formOfDocCredit = FormOfDocCredit.Irrevocable;
         newLC.docCreditNumber = docCreditNumberCounter;
-        newLC.dateOfIssue = block.timestamp;
-        newLC.applicableRules = _applicableRules;       // Mohammed To Read more
-        newLC.dateAndPlaceOfExpiry = _dateAndPlaceOfExpiry;     // Set to block.timestamp for now.
+        newLC.issueDetails.dateOfIssue = block.timestamp;
+        newLC.issueDetails.applicableRules = _applicableRules;       // Mohammed To Read more
+        newLC.issueDetails.dateAndPlaceOfExpiry = _dateAndPlaceOfExpiry;     // Set to block.timestamp for now.
         
-        newLC.applicant = Actor({
-            name: "applicant",
-            addressIRL: _applicantIRLHashed,
-            addressEOA: _applicantEOA
+        newLC.applicant = ActorDetails({
+            addressIRL: _applicant.addressIRL,
+            addressEOA: _applicant.addressEOA
         });
 
-        newLC.beneficiary = Actor({
-            name: "beneficiary",
-            addressIRL: _beneficiaryIRLHashed,
-            addressEOA: _beneficiaryEOA
+        newLC.beneficiary = ActorDetails({
+            addressIRL: _beneficiary.addressIRL,
+            addressEOA: _beneficiary.addressEOA
         });
         
-        newLC.currencyCode = CurrencyCodeAndAmount({
+        newLC.currencyDetails = CurrencyDetails({
             currencyCode: "USD",
             currencyAddress: address(usdc),
             amount: _currencyAmount
         });
 
+        // todo: fix this.
         newLC.availableWithBy = AvailableWithBy({
-            BY_ACCEPTANCE: _availableWithChainId,
-            BY_DEF_PAYMENT: _availableWithDeploymentAddress,
+            BY_ACCEPTANCE: "default",
+            BY_DEF_PAYMENT: "default",
             BY_MIXED_PYMT: "default",
             BY_NEGOTIATION: "default",
             BY_PAYMENT: "default"
         });
 
-        newLC.partialShipments = PartialShipments.NotAllowed;   // Only support NotAllowed for now.
-        newLC.transshipment = Transshipment.NotAllowed;     // Only support NotAllowed for now.
-        newLC.portOfLoading = _portOfLoading;
-        newLC.portOfDischarge = _portOfDischarge;
+
+        // Shipping Details
+        newLC.shippingDetails.partialShipments = PartialShipments.NotAllowed;   // Only support NotAllowed for now.
+        newLC.shippingDetails.transshipment = Transshipment.NotAllowed;     // Only support NotAllowed for now.
+        newLC.shippingDetails.portDetails = PortDetails({
+            portOfLoading: _portDetails.portOfLoading,
+            portOfDischarge: _portDetails.portOfDischarge
+        });
+
+        // Other details
         newLC.descriptionOfGoodsAndOrServices = _descriptionOfGoodsAndOrServices;
         newLC.documentsRequired = "Proof of SeaWayBill";
         newLC.additionalConditions = "Tokenized USD will be transferred digitally to this contract address on the Ethereum blockchain.";
         newLC.periodForPresentation = 21 days;
         newLC.confirmationInstructions = _confirmationInstructions;     // Mohammed to read more
 
+        // Add LC to mappings.
         creatorToLC[msg.sender] = newLC;
         docCreditNumberToLC[docCreditNumberCounter] = newLC;
         docCreditNumberCounter++;
@@ -169,7 +183,7 @@ contract LCContract is Groth16Verifier {
         LC memory lc = docCreditNumberToLC[docCreditNumber];
         require(lc.docCreditNumber != 0, "LC does not exist");
         require(lc.beneficiary.addressEOA == msg.sender, "Only beneficiary can accept LC");
-        require(lc.dateAndPlaceOfExpiry > block.timestamp, "LC has expired");
+        require(lc.issueDetails.dateAndPlaceOfExpiry > block.timestamp, "LC has expired");
         acceptedLC[docCreditNumber] = lc;
     }
 
@@ -179,10 +193,10 @@ contract LCContract is Groth16Verifier {
 
 
     function completeLC(
-        uint256[2] a,
-        uint256[2][2] b,
-        uint256[2] c,
-        uint256[10] signals
+        uint256[2] calldata a,
+        uint256[2][2] calldata b,
+        uint256[2] calldata c,
+        uint256[10] calldata signals
     ) public {
 
         // require(this.verifyProof(a, b, c, signals), "Invalid Proof");
