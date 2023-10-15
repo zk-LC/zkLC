@@ -1,6 +1,6 @@
-# eZKrow
+# zkLC
 
-## A trustless escrow controlled by zero-knowledge proofs
+## A trustless LC enabled by zero-knowledge proofs
 
 [x]
 
