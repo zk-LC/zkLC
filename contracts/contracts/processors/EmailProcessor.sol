@@ -3,7 +3,7 @@
 import { BaseProcessor } from "./BaseProcessor.sol";
 import { IKeyHashAdapter } from "./keyHashAdapters/IKeyHashAdapter.sol";
 import { IProcessor } from "../interfaces/IProcessor.sol";
-import { Groth16Verifier } from "../verifiers/venmo_verifier.sol";
+import { Groth16Verifier } from "../verifiers/verifier.sol";
 import { ProofParsingUtils } from "../lib/ProofParsingUtils.sol";
 
 pragma solidity ^0.8.18;
@@ -33,7 +33,7 @@ contract EscrowProcessor is Groth16Verifier, IProcessor, BaseProcessor {
     )
         public
         override
-        onlyRamp
+        onlyEscrow
         returns(uint256 timestamp, bytes32 onRamperIdHash, bytes32 intentHash)
     {
         require(this.verifyProof(_proof.a, _proof.b, _proof.c, _proof.signals), "Invalid Proof"); // checks effects iteractions, this should come first

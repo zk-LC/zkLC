@@ -12,11 +12,11 @@ import { IProcessor } from "./interfaces/IProcessor.sol";
 
 pragma solidity ^0.8.18;
 
-contract LCContract is Ownable {
+contract LCContract is Verifier {
     enum FormOfDocCredit { Irrevocable, Irrevocable_Transferable }
     enum ApplicableRules { EUCP_LATEST_VERSION, EUCPURR_LATEST_VERSION, OTHR, UCP_LATEST_VERSION,  UCPURR_LATEST_VERSION }
     enum PartialShipments { NotAllowed, Allowed, Conditional }
-    enum Transshipment { NotAllowed, Allowed, }
+    enum Transshipment { NotAllowed, Allowed }
     enum ConfirmationInstructions { Confirm, MayAdd, Without }
 
     
@@ -90,7 +90,9 @@ contract LCContract is Ownable {
         // string senderToReceiverInformation;
     }
 
-    mapping(address => LC) public lcByAddress;
+    mapping(address => LC) public creatorToLC;
+    mapping(uint256 => LC) public docCreditNumberToLC;
+    mapping(uint256 => LC) public acceptedLC;
     uint256 public docCreditNumberCounter;
     IERC20 public usdc;     // Only support USDC for now.
 
@@ -108,7 +110,7 @@ contract LCContract is Ownable {
         string memory _portOfDischarge,
         string memory _descriptionOfGoodsAndOrServices,
         ConfirmationInstructions _confirmationInstructions
-    ) public {
+    ) external {
         LC memory newLC;
 
         newLC.sequenceOfTotal = 1;
@@ -139,7 +141,7 @@ contract LCContract is Ownable {
         newLC.availableWithBy = AvailableWithBy({
             BY_ACCEPTANCE: _availableWithChainId,
             BY_DEF_PAYMENT: _availableWithDeploymentAddress,
-            BY_MIXED PYMT: "default",
+            BY_MIXED_PYMT: "default",
             BY_NEGOTIATION: "default",
             BY_PAYMENT: "default"
         });
@@ -154,9 +156,48 @@ contract LCContract is Ownable {
         newLC.periodForPresentation = 21 days;
         newLC.confirmationInstructions = _confirmationInstructions;     // Mohammed to read more
 
-        lcByAddress[msg.sender] = newLC;
+        creatorToLC[msg.sender] = newLC;
+        docCreditNumberToLC[docCreditNumberCounter] = newLC;
         docCreditNumberCounter++;
+
+        // Transfer in the USDC to this contract.
+        usdc.transferFrom(msg.sender, address(this), _currencyAmount);
     }
 
+
+    function acceptLC(
+        uint256 docCreditNumber
+    ) external {
+        LC memory lc = docCreditNumberToLC[docCreditNumber];
+        require(lc.docCreditNumber != 0, "LC does not exist");
+        require(lc.beneficiary.addressEOA == msg.sender, "Only beneficiary can accept LC");
+        require(lc.dateAndPlaceOfExpiry > block.timestamp, "LC has expired");
+        acceptedLC[docCreditNumber] = lc;
+    }
+
+    function getLC(uint256 docCreditNumber) external view returns (LC memory) {
+        return docCreditNumberToLC[docCreditNumber];
+    }
+
+
+    function completeLC(
+        uint256[2] a,
+        uint256[2][2] b,
+        uint256[2] c,
+        uint256[10] signals
+    ) public {
+
+        // require(this.verifyProof(a, b, c, signals), "Invalid Proof");
+
+        // validate the sigining domain is GCM??
+        // validate the LC has not expired
+        // validate the LC has been accepted
+        // validate the applicant IRL address matches the one on the seaway bill
+        // validate the beneficiary IRL address matches the one on the seaway bill
+        // validate the port of loading matches the one on the seaway bill
+        // validate the port of discharge matches the one on the seaway bill
+        // validate the description of goods matches the one on the seaway bill
+
+    }
 }
    

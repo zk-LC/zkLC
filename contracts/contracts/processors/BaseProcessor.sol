@@ -19,7 +19,7 @@ contract BaseProcessor is Ownable {
 
     /* ============ State Variables ============ */
     address public immutable escrow;
-    mailserverKeyHashAdapter;
+    IKeyHashAdapter public mailserverKeyHashAdapter;
     bytes public emailFromAddress;
 
     /* ============ Constructor ============ */
@@ -55,7 +55,7 @@ contract BaseProcessor is Ownable {
         return emailFromAddress;
     }
 
-    function getVenmoMailserverKeyHash() public view returns (bytes32) {
-        mailserverKeyHashAdapter).venmoMailserverKeyHash();
+    function getMailserverKeyHash() public view returns (bytes32) {
+        return IKeyHashAdapter(mailserverKeyHashAdapter).venmoMailserverKeyHash();
     }
 }
