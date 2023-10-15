@@ -1,4 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0
+
+//
+// TODO: Replace this with your verifier.
+//
+
 /*
     Copyright 2021 0KIMS association.
 

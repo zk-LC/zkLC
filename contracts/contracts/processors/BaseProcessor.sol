@@ -9,8 +9,8 @@ pragma solidity ^0.8.18;
 contract BaseProcessor is Ownable {
 
     /* ============ Modifiers ============ */
-    modifier onlyRamp() {
-        require(msg.sender == ramp, "Only Ramp can call this function");
+    modifier onlyEscrow() {
+        require(msg.sender == escrow, "Only Escrow can call this function");
         _;
     }
     
@@ -18,29 +18,29 @@ contract BaseProcessor is Ownable {
     uint8 private constant EMAIL_ADDRESS_LENGTH = 21;   // 21 bytes in an email address
 
     /* ============ State Variables ============ */
-    address public immutable ramp;
-    IKeyHashAdapter public venmoMailserverKeyHashAdapter;
+    address public immutable escrow;
+    mailserverKeyHashAdapter;
     bytes public emailFromAddress;
 
     /* ============ Constructor ============ */
     constructor(
-        address _ramp,
-        IKeyHashAdapter _venmoMailserverKeyHashAdapter,
+        address _escrow,
+        IKeyHashAdapter _mailserverKeyHashAdapter,
         string memory _emailFromAddress
     )
         Ownable()
     {
         require(bytes(_emailFromAddress).length == EMAIL_ADDRESS_LENGTH, "Email from address not properly padded");
 
-        ramp = _ramp;
-        venmoMailserverKeyHashAdapter = _venmoMailserverKeyHashAdapter;
+        escrow = _escrow;
+        mailserverKeyHashAdapter = _mailserverKeyHashAdapter;
         emailFromAddress = bytes(_emailFromAddress);
     }
 
     /* ============ External Functions ============ */
 
-    function setVenmoMailserverKeyHashAdapter(IKeyHashAdapter _venmoMailserverKeyHashAdapter) external onlyOwner {
-        venmoMailserverKeyHashAdapter = _venmoMailserverKeyHashAdapter;
+    function setMailserverKeyHashAdapter(IKeyHashAdapter _mailserverKeyHashAdapter) external onlyOwner {
+        mailserverKeyHashAdapter = _mailserverKeyHashAdapter;
     }
 
     function setEmailFromAddress(string memory _emailFromAddress) external onlyOwner {
@@ -56,6 +56,6 @@ contract BaseProcessor is Ownable {
     }
 
     function getVenmoMailserverKeyHash() public view returns (bytes32) {
-        return IKeyHashAdapter(venmoMailserverKeyHashAdapter).venmoMailserverKeyHash();
+        mailserverKeyHashAdapter).venmoMailserverKeyHash();
     }
 }
