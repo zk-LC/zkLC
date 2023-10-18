@@ -25,6 +25,7 @@ contract LCContract is Groth16Verifier {
         string BY_MIXED_PYMT;
         string BY_NEGOTIATION;
         string BY_PAYMENT;
+        string BY_SMART_CONTRACT; 
     }
 
     // TODO: 
@@ -107,14 +108,12 @@ contract LCContract is Groth16Verifier {
     IERC20 public usdc;     // Only support USDC for now.
 
     function createLC(
-        string memory _applicableRules,
         uint256 _dateAndPlaceOfExpiry,      // Just pass in the block.timestamp for now.
         ActorDetails memory _applicant,
         ActorDetails memory _beneficiary,
         uint256 _currencyAmount,
         PortDetails memory _portDetails,
         string memory _descriptionOfGoodsAndOrServices,
-        ConfirmationInstructions _confirmationInstructions
     ) external {
         LC memory newLC;
 
@@ -123,7 +122,7 @@ contract LCContract is Groth16Verifier {
         newLC.formOfDocCredit = FormOfDocCredit.Irrevocable;
         newLC.docCreditNumber = docCreditNumberCounter;
         newLC.issueDetails.dateOfIssue = block.timestamp;
-        newLC.issueDetails.applicableRules = _applicableRules;       // Mohammed To Read more
+        newLC.issueDetails.applicableRules = applicableRules.EUCP_LATEST_VERSION;      //Only support EUCP latest version for now. 
         newLC.issueDetails.dateAndPlaceOfExpiry = _dateAndPlaceOfExpiry;     // Set to block.timestamp for now.
         
         newLC.applicant = ActorDetails({
@@ -165,7 +164,7 @@ contract LCContract is Groth16Verifier {
         newLC.documentsRequired = "Proof of SeaWayBill";
         newLC.additionalConditions = "Tokenized USD will be transferred digitally to this contract address on the Ethereum blockchain.";
         newLC.periodForPresentation = 21 days;
-        newLC.confirmationInstructions = _confirmationInstructions;     // Mohammed to read more
+        newLC.confirmationInstructions = confirmationInstructions.Without;   
 
         // Add LC to mappings.
         creatorToLC[msg.sender] = newLC;
