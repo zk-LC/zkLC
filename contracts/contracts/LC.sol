@@ -16,16 +16,13 @@ contract LCContract is Groth16Verifier {
     enum PartialShipments { NotAllowed, Allowed, Conditional }
     enum Transshipment { NotAllowed, Allowed }
     enum ConfirmationInstructions { Confirm, MayAdd, Without }
-
-    
-    // todo: fix this. Make some of it addresses.
-    struct AvailableWithBy {
-        string BY_ACCEPTANCE;
-        string BY_DEF_PAYMENT;
-        string BY_MIXED_PYMT;
-        string BY_NEGOTIATION;
-        string BY_PAYMENT;
-        string BY_SMART_CONTRACT; 
+    enum AvailableWithBy {
+        BY_ACCEPTANCE,
+        BY_DEF_PAYMENT,
+        BY_MIXED_PYMT,
+        BY_NEGOTIATION,
+        BY_PAYMENT,
+        BY_SMART_CONTRACT
     }
 
     // TODO: 
@@ -47,7 +44,7 @@ contract LCContract is Groth16Verifier {
 
     struct IssueDetails {
         uint256 dateOfIssue;
-        string applicableRules;
+        ApplicableRules applicableRules;
         uint256 dateAndPlaceOfExpiry;
     }
 
@@ -117,7 +114,7 @@ contract LCContract is Groth16Verifier {
         ActorDetails memory _beneficiary,
         uint256 _currencyAmount,
         PortDetails memory _portDetails,
-        string memory _descriptionOfGoodsAndOrServices,
+        string memory _descriptionOfGoodsAndOrServices
     ) external {
         LC memory newLC;
 
@@ -126,7 +123,7 @@ contract LCContract is Groth16Verifier {
         newLC.formOfDocCredit = FormOfDocCredit.Irrevocable;
         newLC.docCreditNumber = docCreditNumberCounter;
         newLC.issueDetails.dateOfIssue = block.timestamp;
-        newLC.issueDetails.applicableRules = applicableRules.EUCP_LATEST_VERSION;      //Only support EUCP latest version for now. 
+        newLC.issueDetails.applicableRules = ApplicableRules.EUCP_LATEST_VERSION;      //Only support EUCP latest version for now. 
         newLC.issueDetails.dateAndPlaceOfExpiry = _dateAndPlaceOfExpiry;     // Set to block.timestamp for now.
         
         newLC.applicant = ActorDetails({
@@ -145,15 +142,7 @@ contract LCContract is Groth16Verifier {
             amount: _currencyAmount
         });
 
-        // todo: fix this.
-        newLC.availableWithBy = AvailableWithBy({
-            BY_ACCEPTANCE: "default",
-            BY_DEF_PAYMENT: "default",
-            BY_MIXED_PYMT: "default",
-            BY_NEGOTIATION: "default",
-            BY_PAYMENT: "default"
-        });
-
+        newLC.availableWithBy = AvailableWithBy.BY_SMART_CONTRACT;
 
         // Shipping Details
         newLC.shippingDetails.partialShipments = PartialShipments.NotAllowed;   // Only support NotAllowed for now.
@@ -168,7 +157,7 @@ contract LCContract is Groth16Verifier {
         newLC.documentsRequired = "Proof of SeaWayBill";
         newLC.additionalConditions = "Tokenized USD will be transferred digitally to this contract address on the Ethereum blockchain.";
         newLC.periodForPresentation = 21 days;
-        newLC.confirmationInstructions = confirmationInstructions.Without;   
+        newLC.confirmationInstructions = ConfirmationInstructions.Without;   
 
         // Add LC to mappings.
         creatorToLC[msg.sender] = newLC;

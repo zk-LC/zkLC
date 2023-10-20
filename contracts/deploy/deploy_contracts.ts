@@ -66,7 +66,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   // Create LC example
   await lcContract.connect(buyer).createLC(
-    "Applicable Rules",
     expiryTimestamp,
     "Bangalore, India",
     {
@@ -78,8 +77,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       "portOfLoading": "Chennai",
       "portOfDischarge": "London"
     },
-    "Description of Goods and Servcies",
-    0,   // Confirm
+    "Description of Goods and Servcies"
   );
 
   // Fetch LC details
