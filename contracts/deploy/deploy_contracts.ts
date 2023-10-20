@@ -42,15 +42,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     usdcAddress = USDC[network];
   }
 
-  // const poseidon = await deploy("Poseidon", {
-  //   from: deployer,
-  //   contract: {
-  //     abi: circom.poseidonContract.generateABI(3),
-  //     bytecode: circom.poseidonContract.createCode(3),
-  //   }
-  // });
-  // console.log("Poseidon deployed...");
-
   const lcContractDeployed = await deploy("LCContract", {
     from: deployer,
     args: [
@@ -69,23 +60,39 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   //   args: [ramp.address, keyHashAdapter.address, FROM_EMAIL],
   // });
 
-  // const receiveProcessor = await deploy("VenmoReceiveProcessor", {
-  //   from: deployer,
-  //   args: [ramp.address, keyHashAdapter.address, FROM_EMAIL],
-  // });
-
-  // const sendProcessor = await deploy("VenmoSendProcessor", {
-  //   from: deployer,
-  //   args: [ramp.address, keyHashAdapter.address, FROM_EMAIL],
-  // });
   // console.log("Processors deployed...");
 
   const lcContract = await ethers.getContractAt("LCContract", lcContractDeployed.address);
-  // await lcContract.initialize(
-  //   receiveProcessor.address,
-  //   registrationProcessor.address,
-  //   sendProcessor.address
-  // );
+
+  const dateOfExpiry = "2021-12-31";
+  const expiryTimestamp = Math.floor(new Date(dateOfExpiry).getTime() / 1000);
+
+  // Approve 1 USDC
+  const usdcContract = await ethers.getContractAt("USDCMock", usdcAddress);
+  await usdcContract.approve(lcContract.address, 1000000);
+
+  // Create LC example
+  const lc = await lcContract.createLC(
+    "Applicable Rules",
+    expiryTimestamp,
+    "Bangalore, India",
+    {
+      "addressEOA": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "addressIRL": "London, India"
+    },
+    1000000,
+    {
+      "portOfLoading": "Chennai",
+      "portOfDischarge": "London"
+    },
+    "Description of Goods and Servcies",
+    0   // Confirm
+  );
+
+  // Fetch LC details
+  const lcDetails = await lcContract.getLC(0);
+  console.log("Created LC", lcDetails);
+
 
   if (network == "goerli") {
     const usdcContract = await ethers.getContractAt("USDCMock", usdcAddress);

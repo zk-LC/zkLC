@@ -114,7 +114,7 @@ contract LCContract is Groth16Verifier {
     function createLC(
         string memory _applicableRules,
         uint256 _dateAndPlaceOfExpiry,      // Just pass in the block.timestamp for now.
-        ActorDetails memory _applicant,
+        string memory _applicantAddressIRL,
         ActorDetails memory _beneficiary,
         uint256 _currencyAmount,
         PortDetails memory _portDetails,
@@ -132,8 +132,8 @@ contract LCContract is Groth16Verifier {
         newLC.issueDetails.dateAndPlaceOfExpiry = _dateAndPlaceOfExpiry;     // Set to block.timestamp for now.
         
         newLC.applicant = ActorDetails({
-            addressIRL: _applicant.addressIRL,
-            addressEOA: _applicant.addressEOA
+            addressIRL: _applicantAddressIRL,
+            addressEOA: msg.sender
         });
 
         newLC.beneficiary = ActorDetails({
