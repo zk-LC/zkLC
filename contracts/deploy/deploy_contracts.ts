@@ -28,8 +28,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = await hre.deployments
   const network = hre.deployments.getNetworkName();
 
-  const [ deployer ] = await hre.getUnnamedAccounts();
-  
+  const [deployer] = await hre.getUnnamedAccounts();
+
   let usdcAddress;
   if (!USDC[network]) {
     const usdcToken = await deploy("USDCMock", {
@@ -42,55 +42,51 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     usdcAddress = USDC[network];
   }
 
-  const poseidon = await deploy("Poseidon", {
-    from: deployer,
-    contract: {
-      abi: circom.poseidonContract.generateABI(3),
-      bytecode: circom.poseidonContract.createCode(3),
-    }
-  });
-  console.log("Poseidon deployed...");
+  // const poseidon = await deploy("Poseidon", {
+  //   from: deployer,
+  //   contract: {
+  //     abi: circom.poseidonContract.generateABI(3),
+  //     bytecode: circom.poseidonContract.createCode(3),
+  //   }
+  // });
+  // console.log("Poseidon deployed...");
 
-  const ramp = await deploy("Ramp", {
+  const lcContractDeployed = await deploy("LCContract", {
     from: deployer,
     args: [
-      deployer,
       usdcAddress,
-      poseidon.address,
-      MIN_DEPOSIT_AMOUNT[network],
-      CONVENIENCE_TIME_PERIOD[network]
     ],
   });
-  console.log("Ramp deployed...");
+  console.log("LCContract deployed...");
 
-  const keyHashAdapter = await deploy("ManagedKeyHashAdapter", {
-    from: deployer,
-    args: [SERVER_KEY_HASH],
-  });
+  // const keyHashAdapter = await deploy("ManagedKeyHashAdapter", {
+  //   from: deployer,
+  //   args: [SERVER_KEY_HASH],
+  // });
 
-  const registrationProcessor = await deploy("VenmoRegistrationProcessor", {
-    from: deployer,
-    args: [ramp.address, keyHashAdapter.address, FROM_EMAIL],
-  });
+  // const registrationProcessor = await deploy("VenmoRegistrationProcessor", {
+  //   from: deployer,
+  //   args: [ramp.address, keyHashAdapter.address, FROM_EMAIL],
+  // });
 
-  const receiveProcessor = await deploy("VenmoReceiveProcessor", {
-    from: deployer,
-    args: [ramp.address, keyHashAdapter.address, FROM_EMAIL],
-  });
+  // const receiveProcessor = await deploy("VenmoReceiveProcessor", {
+  //   from: deployer,
+  //   args: [ramp.address, keyHashAdapter.address, FROM_EMAIL],
+  // });
 
-  const sendProcessor = await deploy("VenmoSendProcessor", {
-    from: deployer,
-    args: [ramp.address, keyHashAdapter.address, FROM_EMAIL],
-  });
-  console.log("Processors deployed...");
+  // const sendProcessor = await deploy("VenmoSendProcessor", {
+  //   from: deployer,
+  //   args: [ramp.address, keyHashAdapter.address, FROM_EMAIL],
+  // });
+  // console.log("Processors deployed...");
 
-  const rampContract = await ethers.getContractAt("Ramp", ramp.address);
-  await rampContract.initialize(
-    receiveProcessor.address,
-    registrationProcessor.address,
-    sendProcessor.address
-  );
-  
+  const lcContract = await ethers.getContractAt("LCContract", lcContractDeployed.address);
+  // await lcContract.initialize(
+  //   receiveProcessor.address,
+  //   registrationProcessor.address,
+  //   sendProcessor.address
+  // );
+
   if (network == "goerli") {
     const usdcContract = await ethers.getContractAt("USDCMock", usdcAddress);
     await usdcContract.transfer(USDC_RECIPIENT, USDC_MINT_AMOUNT);

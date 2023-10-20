@@ -106,6 +106,11 @@ contract LCContract is Groth16Verifier {
     uint256 public docCreditNumberCounter;
     IERC20 public usdc;     // Only support USDC for now.
 
+    constructor(address _usdcAddress) {
+        usdc = IERC20(_usdcAddress);
+    }
+
+
     function createLC(
         string memory _applicableRules,
         uint256 _dateAndPlaceOfExpiry,      // Just pass in the block.timestamp for now.
