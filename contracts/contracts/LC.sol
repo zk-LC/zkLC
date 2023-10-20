@@ -100,10 +100,9 @@ contract LCContract is Groth16Verifier {
         // string senderToReceiverInformation;
     }
 
-    mapping(address => LC) public creatorToLC;
-    mapping(uint256 => LC) public docCreditNumberToLC;
-    mapping(uint256 => LC) public acceptedLC;
-    uint256 public docCreditNumberCounter;
+    mapping(address => LC) public creatorToLC;              // We only allow one LC per creator.
+    mapping(address => bool) public acceptedLC;
+    uint256 public docCreditNumberCounter = 1;      // starts from 1
     IERC20 public usdc;     // Only support USDC for now.
 
     constructor(address _usdcAddress) {
@@ -174,7 +173,6 @@ contract LCContract is Groth16Verifier {
 
         // Add LC to mappings.
         creatorToLC[msg.sender] = newLC;
-        docCreditNumberToLC[docCreditNumberCounter] = newLC;
         docCreditNumberCounter++;
 
         // Transfer in the USDC to this contract.
@@ -183,19 +181,23 @@ contract LCContract is Groth16Verifier {
 
 
     function acceptLC(
-        uint256 docCreditNumber
+        address _creator
     ) external {
-        LC memory lc = docCreditNumberToLC[docCreditNumber];
+        LC memory lc = creatorToLC[_creator];
         require(lc.docCreditNumber != 0, "LC does not exist");
         require(lc.beneficiary.addressEOA == msg.sender, "Only beneficiary can accept LC");
         require(lc.issueDetails.dateAndPlaceOfExpiry > block.timestamp, "LC has expired");
-        acceptedLC[docCreditNumber] = lc;
+        acceptedLC[_creator] = true;
     }
 
-    function getLC(uint256 docCreditNumber) external view returns (LC memory) {
-        return docCreditNumberToLC[docCreditNumber];
+    function getLC(address _creator) external view returns (LC memory) {
+        return creatorToLC[_creator];
     }
 
+
+    function isLCAccepted(address _creator) external view returns (bool) {
+        return acceptedLC[_creator];
+    }
 
     function completeLC(
         uint256[2] calldata a,
