@@ -34,7 +34,6 @@ export default function SellerLCs() {
     defaultValues: {
       // ************************************ //
       // TESTING
-
       ...(process.env.NODE_ENV === "development"
         ? {
             address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -56,6 +55,7 @@ export default function SellerLCs() {
     abi: LCContractABI.abi,
     functionName: "getLC",
     args: [address],
+    enabled: !!address && !isEmptyAddress(address),
   });
 
   const data = lcData as any;
@@ -138,181 +138,188 @@ export default function SellerLCs() {
 
       <div>
         {isLoading ? <Skeleton className="w-full h-32" /> : null}
-        {isErrorOREmptyData && !isLoading ? (
+        {isErrorOREmptyData && !isLoading && !!address ? (
           <p className="text-destructive font-semibold text-lg">
             {error?.message || "Could not fetch LC for the given address"}
           </p>
         ) : null}
 
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">
-              Additional Conditions
-            </p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              {data.additionalConditions}
-            </p>
-          </div>
+        {data && !isErrorOREmptyData && !isLoading ? (
+          <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">
+                Additional Conditions
+              </p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                {data.additionalConditions}
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">Applicant</p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              ETH Address: {data.applicant.addressEOA}
-              <br />
-              IRL Address: {data.applicant.addressIRL}
-            </p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">
+                Applicant
+              </p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                ETH Address: {data.applicant.addressEOA}
+                <br />
+                IRL Address: {data.applicant.addressIRL}
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">
-              Beneficiary
-            </p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              ETH Address: {data.beneficiary.addressEOA}
-              <br />
-              IRL Address: {data.beneficiary.addressIRL}
-            </p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">
+                Beneficiary
+              </p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                ETH Address: {data.beneficiary.addressEOA}
+                <br />
+                IRL Address: {data.beneficiary.addressIRL}
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">
-              Available With By
-            </p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              {data.availableWithBy}
-            </p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">
+                Available With By
+              </p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                {data.availableWithBy}
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">
-              Confirmation Instructions
-            </p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              {data.confirmationInstructions}
-            </p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">
+                Confirmation Instructions
+              </p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                {data.confirmationInstructions}
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">Currency</p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              {data.currencyDetails.amount.toString()}{" "}
-              {data.currencyDetails.currencyCode}
-            </p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">Currency</p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                {data.currencyDetails.amount.toString()}{" "}
+                {data.currencyDetails.currencyCode}
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">
-              Description of Goods and Services
-            </p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              {data.descriptionOfGoodsAndOrServices}
-            </p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">
+                Description of Goods and Services
+              </p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                {data.descriptionOfGoodsAndOrServices}
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">
-              Documents Required
-            </p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              {data.documentsRequired}
-            </p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">
+                Documents Required
+              </p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                {data.documentsRequired}
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">
-              Issue Details
-            </p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              Applicable Rules: {data.issueDetails.applicableRules} <br />
-              Date And Place of Expiry:
-              {String(data.issueDetails.dateAndPlaceOfExpiry)} <br />
-              Date of Issue: {String(data.issueDetails.dateOfIssue)}
-            </p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">
+                Issue Details
+              </p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                Applicable Rules: {data.issueDetails.applicableRules} <br />
+                Date And Place of Expiry:
+                {String(data.issueDetails.dateAndPlaceOfExpiry)} <br />
+                Date of Issue: {String(data.issueDetails.dateOfIssue)}
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">
-              Period for Presentation
-            </p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              {String(data.periodForPresentation)}
-            </p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">
+                Period for Presentation
+              </p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                {String(data.periodForPresentation)}
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">
-              Doc Credit Number
-            </p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              {String(data.docCreditNumber)}
-            </p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">
+                Doc Credit Number
+              </p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                {String(data.docCreditNumber)}
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">
-              Form of Doc Credit
-            </p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              {data.formOfDocCredit}
-            </p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">
+                Form of Doc Credit
+              </p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                {data.formOfDocCredit}
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">
-              Sequence of Total
-            </p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              {String(data.sequenceOfTotal)}
-            </p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">
+                Sequence of Total
+              </p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                {String(data.sequenceOfTotal)}
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">
-              Period for Presentation
-            </p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              {String(data.periodForPresentation)}
-            </p>
-          </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">
+                Period for Presentation
+              </p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                {String(data.periodForPresentation)}
+              </p>
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-foreground/70">
-              Shipping Details
-            </p>
-            <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-              Partial Shipments: {String(data.shippingDetails.partialShipments)}
-              <br />
-              Partial Shipments: {String(data.shippingDetails.transshipment)}
-              <br />
-              Port of Loading:
-              {data.shippingDetails.portDetails.portOfLoading}
-              <br />
-              Port of Discharge:
-              {data.shippingDetails.portDetails.portOfDischarge}
-            </p>
+            <div className="flex flex-col gap-2">
+              <p className="text-sm font-medium text-foreground/70">
+                Shipping Details
+              </p>
+              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
+                Partial Shipments:{" "}
+                {String(data.shippingDetails.partialShipments)}
+                <br />
+                Partial Shipments: {String(data.shippingDetails.transshipment)}
+                <br />
+                Port of Loading:
+                {data.shippingDetails.portDetails.portOfLoading}
+                <br />
+                Port of Discharge:
+                {data.shippingDetails.portDetails.portOfDischarge}
+              </p>
+            </div>
           </div>
+        ) : null}
+      </div>
+
+      {data && !isErrorOREmptyData && !isLoading ? (
+        <div className="flex flex-col gap-2">
+          {!isErrorOREmptyData && !isLoading ? (
+            <Button
+              className="w-full"
+              size="lg"
+              onClick={onApproveLCClick}
+              disabled={!!acceptedLCData}
+            >
+              Approve LC
+            </Button>
+          ) : null}
+
+          {!!acceptedLCData ? (
+            <p className="text-base text-emerald-600 font-bold flex gap-2 items-center">
+              <Check />
+              LC has been approved
+            </p>
+          ) : null}
         </div>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        {!isErrorOREmptyData && !isLoading ? (
-          <Button
-            className="w-full"
-            size="lg"
-            onClick={onApproveLCClick}
-            disabled={!!acceptedLCData}
-          >
-            Approve LC
-          </Button>
-        ) : null}
-
-        {!!acceptedLCData ? (
-          <p className="text-base text-emerald-600 font-bold flex gap-2 items-center">
-            <Check />
-            LC has been approved
-          </p>
-        ) : null}
-      </div>
+      ) : null}
     </div>
   );
 }

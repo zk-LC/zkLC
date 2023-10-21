@@ -74,8 +74,8 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardFooter>
-              <Button className="w-full" size="lg">
-                Verify/Complette LC
+              <Button className="w-full" size="lg" asChild>
+                <Link href="/seller">Verify/Complette LC</Link>
               </Button>
             </CardFooter>
           </Card>
