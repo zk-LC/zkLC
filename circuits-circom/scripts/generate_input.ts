@@ -52,6 +52,7 @@ export interface ICircuitInputs {
   venmo_amount_idx?: string;
   venmo_actor_id_idx?: string;
   order_id?: string;
+  buyer_address: string;
 
   // subject commands only
   command_idx?: string;
@@ -71,7 +72,8 @@ export enum CircuitType {
   TEST = "test",
   EMAIL_VENMO_RECEIVE = "receive",
   EMAIL_VENMO_SEND = "send",
-  EMAIL_VENMO_REGISTRATION = "registration"
+  EMAIL_VENMO_REGISTRATION = "registration",
+  EMAIL_WAYBILL = "waybill"
 }
 
 async function findSelector(a: Uint8Array, selector: number[]): Promise<number> {
@@ -115,7 +117,7 @@ export async function getCircuitInputs(
   message: Buffer,
   body: Buffer,
   body_hash: string,
-  order_id: string,
+  buyer_address: string,
   circuit: CircuitType
 ): Promise<{
   valid: {
@@ -141,6 +143,9 @@ export async function getCircuitInputs(
     // since they share similar formats to extract actor ID
     STRING_PRESELECTOR_FOR_EMAIL_TYPE = "                    href=3D\"https://venmo.com/code?user_id=3D";
     MAX_BODY_PADDED_BYTES_FOR_EMAIL_TYPE = 6272;  // +320 (>280 limit for custom message)
+  } else if (circuit === CircuitType.EMAIL_WAYBILL) {
+    STRING_PRESELECTOR_FOR_EMAIL_TYPE = "";
+    MAX_BODY_PADDED_BYTES_FOR_EMAIL_TYPE = 0;
   }
 
   // Derive modulus from signature
@@ -274,6 +279,22 @@ export async function getCircuitInputs(
       venmo_actor_id_idx,
       email_from_idx,
     };
+  } else if (circuit == CircuitType.EMAIL_WAYBILL) {
+
+    circuitInputs = {
+      in_padded,
+      modulus,
+      signature,
+      in_len_padded_bytes,
+      precomputed_sha,
+      in_body_padded,
+      in_body_len_padded_bytes,
+      body_hash_idx,
+      // address
+      buyer_address
+    };
+
+
   } else {
     assert(circuit === CircuitType.SHA, "Invalid circuit type");
     circuitInputs = {
@@ -314,7 +335,7 @@ export async function generate_inputs(
       if (result.results[0].status.message) {
         throw new Error(result.results[0].status.message);
       } else {
-        throw new Error(`No public key found on generate_inputs result ${JSON.stringify(result)}`);
+        throw new Error(`No public key found on generate_inputs result.`);
       }
     }
   }
