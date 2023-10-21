@@ -8,6 +8,8 @@ import { Uint256ArrayUtils } from "./lib/Uint256ArrayUtils.sol";
 
 import { Groth16Verifier } from "./verifiers/verifier.sol";
 
+import "hardhat/console.sol";
+
 pragma solidity ^0.8.18;
 
 contract LCContract is Groth16Verifier {
@@ -196,15 +198,36 @@ contract LCContract is Groth16Verifier {
 
         // require(this.verifyProof(a, b, c, signals), "Invalid Proof");
 
-        // validate the sigining domain is GCM??
+        // validate the sigining domain is GCM
+        address buyerAddress = uintToAddress(signals[0]);
+        // 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+        LC memory lc = creatorToLC[buyerAddress];
+
+        // validate the caller is the seller
+        require(lc.beneficiary.addressEOA == msg.sender, "Only beneficiary can complete LC");
+
         // validate the LC has not expired
+        require(lc.issueDetails.dateAndPlaceOfExpiry > block.timestamp, "LC has expired");
+
         // validate the LC has been accepted
+        require(acceptedLC[buyerAddress] == true, "LC has not been accepted");
+
         // validate the applicant IRL address matches the one on the seaway bill
         // validate the beneficiary IRL address matches the one on the seaway bill
         // validate the port of loading matches the one on the seaway bill
         // validate the port of discharge matches the one on the seaway bill
         // validate the description of goods matches the one on the seaway bill
 
+        // Transfer the USDC to the beneficiary.
+        usdc.transfer(lc.beneficiary.addressEOA, lc.currencyDetails.amount);
+    }
+
+    function uintToAddress(uint256 value) public pure returns (address) {
+        address addr;
+        assembly {
+            addr := shr(96, shl(96, value))
+        }
+        return addr;
     }
 }
    

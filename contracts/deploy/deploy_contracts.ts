@@ -13,7 +13,7 @@ import { usdc } from "../utils/common/units";
 
 const USDC = {};
 const USDC_MINT_AMOUNT = usdc(1000000);
-const USDC_RECIPIENT = "0x1d2033DC6720e3eCC14aBB8C2349C7ED77E831ad";
+const USDC_RECIPIENT = "0x73B21642FF6A246179c8A1008AcA6FB3a7671594";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = await hre.deployments
@@ -40,18 +40,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ],
   });
   console.log("LCContract deployed...");
-
-  // const keyHashAdapter = await deploy("ManagedKeyHashAdapter", {
-  //   from: deployer,
-  //   args: [SERVER_KEY_HASH],
-  // });
-
-  // const registrationProcessor = await deploy("VenmoRegistrationProcessor", {
-  //   from: deployer,
-  //   args: [ramp.address, keyHashAdapter.address, FROM_EMAIL],
-  // });
-
-  // console.log("Processors deployed...");
 
   const lcContract = await ethers.getContractAt("LCContract", lcContractDeployed.address);
 
@@ -89,6 +77,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const isLCAccepted = await lcContract.isLCAccepted(buyer.address);
   console.log("LC Accepted", isLCAccepted);
+
+  // Complete LC
+  const a = [0, 0];
+  const b = [[0, 0], [0, 0]];
+  const c = [0, 0];
+  const siganls = [
+    BigNumber.from(buyer.address),
+    0, 0, 0, 0, 0, 0, 0, 0, 0
+  ]
+  await lcContract.connect(seller).completeLC(
+    a, b, c, siganls
+  );
+
+  const usdcBalanceSeller = await usdcContract.balanceOf(sellerAddress);
+  console.log("Seller USDC Balance", usdcBalanceSeller.toString());
 
   if (network == "goerli") {
     const usdcContract = await ethers.getContractAt("USDCMock", usdcAddress);
