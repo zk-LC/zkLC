@@ -20,8 +20,7 @@ export default function Home() {
             <CardHeader>
               <CardTitle>Buyer</CardTitle>
               <CardDescription>
-                Lorem Ipsum is simply dummy text of the printing and typesetting
-                industry.
+                Enter details of your LC and lock collateral.
               </CardDescription>
             </CardHeader>
             <CardFooter>
@@ -54,7 +53,7 @@ export default function Home() {
                     Secure & verifiable
                   </p>
                   <p className="text-foreground/70">
-                    Lorem Ipsum is simply dummy
+                    Secured by zkSNARK proof of email.
                   </p>
                 </div>
               </div>
@@ -69,7 +68,7 @@ export default function Home() {
             <CardHeader>
               <CardTitle>Seller</CardTitle>
               <CardDescription>
-                Lorem Ipsum is simply dummy text of the printing and typesetting
+                Verify LD details and complete the LC. Get paid instantly.
                 industry.
               </CardDescription>
             </CardHeader>
@@ -90,9 +89,11 @@ export default function Home() {
                 <CheckCircle2 className="w-5 h-5 mt-0.5" />
 
                 <div className="flex flex-col gap-1">
-                  <p className="text-foreground font-medium">Sell Instantly</p>
+                  <p className="text-foreground font-medium">
+                    Get Paid Instantly
+                  </p>
                   <p className="text-foreground/70">
-                    Lorem Ipsum is simply dummy
+                    Paid instantly after proof of Waybill is submitted.
                   </p>
                 </div>
               </div>
