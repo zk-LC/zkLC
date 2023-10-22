@@ -221,7 +221,8 @@ export default function SellerLCs() {
                 Currency (32B)
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-                {data.currencyDetails.amount.toString()}{" "}
+                {Number(data.currencyDetails.amount.toString()) /
+                  Math.pow(10, 6)}{" "}
                 {data.currencyDetails.currencyCode}
               </p>
             </div>
@@ -318,32 +319,28 @@ export default function SellerLCs() {
 
       {isConnected && data && !isErrorOREmptyData && !isLoading ? (
         <div className="flex flex-col gap-2">
-          {!isLCAccepted ? (
-            <>
-              {!isErrorOREmptyData && !isLoading ? (
-                <Button
-                  className="w-full"
-                  size="lg"
-                  onClick={onApproveLCClick}
-                  disabled={!!isLCAccepted}
-                >
-                  {!isApproveLCLoading ? (
-                    "Approve LC"
-                  ) : (
-                    <>
-                      <Loader className="animate-spin" />
-                    </>
-                  )}
-                </Button>
-              ) : null}
+          {!isErrorOREmptyData && !isLoading ? (
+            <Button
+              className="w-full"
+              size="lg"
+              onClick={onApproveLCClick}
+              disabled={!!approveLCData}
+            >
+              {!isApproveLCLoading ? (
+                "Approve LC"
+              ) : (
+                <>
+                  <Loader className="animate-spin" />
+                </>
+              )}
+            </Button>
+          ) : null}
 
-              {!!isLCAccepted ? (
-                <p className="text-base text-emerald-600 font-bold flex gap-2 items-center">
-                  <Check />
-                  LC has been approved
-                </p>
-              ) : null}
-            </>
+          {!!approveLCData ? (
+            <p className="text-base text-emerald-600 font-bold flex gap-2 items-center">
+              <Check />
+              LC has been approved
+            </p>
           ) : null}
         </div>
       ) : null}

@@ -36,6 +36,7 @@ import {
   erc20ABI,
   useWalletClient,
   useNetwork,
+  usePublicClient,
 } from "wagmi";
 
 import LCContractABI from "@/contracts/LCContract.json";
@@ -159,6 +160,8 @@ export const CreateLCForm = () => {
     chainId: chain?.id || undefined,
   });
 
+  const publicClient = usePublicClient();
+
   const {
     data: allowanceData,
     isLoading: allowanceIsLoading,
@@ -173,34 +176,56 @@ export const CreateLCForm = () => {
   const { toast } = useToast();
 
   const [tokenApproved, setTokenApproved] = useState(false);
+  const [tokenApproving, setTokenApproving] = useState(false);
 
   const approveToken = async () => {
     if (!walletAddress) return;
 
-    console.log(
-      "GN",
-      BigInt((Number(form.getValues("currencyAmount")) || 0) * Math.pow(10, 6))
-    );
+    try {
+      setTokenApproving(true);
 
-    await writeAllowanceAsync({
-      args: [
-        // walletAddress, //owner
-        // ZKLC_CONTRACT_ADDRESS, //spender
-        getLCContractAddress(chain?.id),
+      console.log(
+        "GN",
         BigInt(
           (Number(form.getValues("currencyAmount")) || 0) * Math.pow(10, 6)
-        ),
-      ],
-    });
+        )
+      );
 
-    toast({
-      title: `Successfully Approved USDC`,
-      variant: "success",
-      // description: "Friday, February 10, 2023 at 5:57 PM",
-      // action: <ToastAction altText="Gotochain?.id schedule to undo">Undo</ToastAction>,
-    });
+      const tx = await writeAllowanceAsync({
+        args: [
+          // walletAddress, //owner
+          // ZKLC_CONTRACT_ADDRESS, //spender
+          getLCContractAddress(chain?.id),
+          BigInt(
+            (Number(form.getValues("currencyAmount")) || 0) * Math.pow(10, 6)
+          ),
+        ],
+      });
 
-    setTokenApproved(true);
+      await publicClient.waitForTransactionReceipt({
+        hash: tx.hash,
+      });
+
+      toast({
+        title: `Successfully Approved USDC`,
+        variant: "success",
+        // description: "Friday, February 10, 2023 at 5:57 PM",
+        // action: <ToastAction altText="Gotochain?.id schedule to undo">Undo</ToastAction>,
+      });
+
+      setTokenApproved(true);
+      setTokenApproving(false);
+    } catch (err) {
+      toast({
+        title: `Failed to approve USDC`,
+        variant: "destructive",
+        // description: "Friday, February 10, 2023 at 5:57 PM",
+        // action: <ToastAction altText="Gotochain?.id schedule to undo">Undo</ToastAction>,
+      });
+
+      setTokenApproved(false);
+      setTokenApproving(false);
+    }
   };
 
   // 2. Define a submit handler.
@@ -595,10 +620,10 @@ export const CreateLCForm = () => {
         {isConnected && !tokenApproved ? (
           <Button
             onClick={approveToken}
-            disabled={allowanceIsLoading}
+            disabled={tokenApproving}
             className="w-full"
           >
-            {!allowanceIsLoading ? (
+            {!tokenApproving ? (
               <>
                 Approve
                 {/* {form.watch("currencyAmount")} */} USDC
