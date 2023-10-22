@@ -130,44 +130,6 @@ export default function SellerLCs() {
     }
   };
 
-  const onCompleteLCClick = async () => {
-    // Complete LC
-    const a = [0, 0];
-    const b = [
-      [0, 0],
-      [0, 0],
-    ];
-    const c = [0, 0];
-    const siganls = [BigInt(address), 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-    try {
-      await completeLCAsync({
-        args: [a, b, c, siganls],
-      });
-
-      if (isCompleteLCSuccess) {
-        toast({
-          title: "LC Completed",
-          variant: "success",
-        });
-      }
-
-      if (isCompleteLCError) {
-        toast({
-          title: "Failed to Complete LC",
-          description: completeLCError?.message,
-          variant: "destructive",
-        });
-      }
-    } catch (err) {
-      toast({
-        title: "Failed to Complete LC",
-        description: (err as any)?.message,
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="flex-1 w-full flex max-w-4xl flex-col mx-auto my-16 gap-12">
       <div className="flex flex-col gap-2">
@@ -395,42 +357,7 @@ export default function SellerLCs() {
                 </p>
               ) : null}
             </>
-          ) : (
-            <div className="flex flex-col gap-4">
-              <h4 className="font-bold text-foreground text-2xl">
-                Complete LC
-              </h4>
-
-              <div className="flex flex-col gap-2 w-full">
-                <Label>Email</Label>
-                <Textarea className="h-[300px]" placeholder="" />
-              </div>
-
-              {!isErrorOREmptyData && !isLoading ? (
-                <Button
-                  className="w-full"
-                  size="lg"
-                  onClick={onCompleteLCClick}
-                  disabled={isCompleteLCLoading || isCompleteLCSuccess}
-                >
-                  {!isCompleteLCLoading ? (
-                    "Complete LC"
-                  ) : (
-                    <>
-                      <Loader className="animate-spin" />
-                    </>
-                  )}
-                </Button>
-              ) : null}
-
-              {isCompleteLCSuccess ? (
-                <p className="text-base text-emerald-600 font-bold flex gap-2 items-center">
-                  <Check />
-                  LC has been completed
-                </p>
-              ) : null}
-            </div>
-          )}
+          ) : null}
         </div>
       ) : null}
     </div>

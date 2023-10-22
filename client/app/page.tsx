@@ -73,9 +73,13 @@ export default function Home() {
                 industry.
               </CardDescription>
             </CardHeader>
-            <CardFooter>
+            <CardFooter className="flex flex-col gap-2">
               <Button className="w-full" size="lg" asChild>
-                <Link href="/seller">Verify/Complete LC</Link>
+                <Link href="/seller">Verify LC</Link>
+              </Button>
+
+              <Button className="w-full" size="lg" asChild>
+                <Link href="/seller/completelc">Complete LC</Link>
               </Button>
             </CardFooter>
           </Card>
