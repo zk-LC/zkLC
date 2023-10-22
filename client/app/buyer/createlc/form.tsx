@@ -239,7 +239,7 @@ export const CreateLCForm = () => {
       },
       // [values.beneficiaryIrlAddress, values.beneficiaryEthAddress],
       // _currencyAmount:
-      Number(values.currencyAmount),
+      Number(values.currencyAmount) * Math.pow(10, 6),
       // _portDetails:
       {
         portOfLoading: values.portOfLoading,
