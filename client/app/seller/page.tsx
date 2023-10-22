@@ -1,7 +1,11 @@
 "use client";
 
-import { ZKLC_CONTRACT_ADDRESS } from "@/lib/consts";
-import { useAccount, useContractRead, useContractWrite } from "wagmi";
+import {
+  useAccount,
+  useContractRead,
+  useContractWrite,
+  useNetwork,
+} from "wagmi";
 import LCContractABI from "@/contracts/LCContract.json";
 import {
   Form,
@@ -19,9 +23,12 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isEmptyAddress } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
-import { Check } from "lucide-react";
+import { Check, Loader } from "lucide-react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { CONFIRMATION_INSTRUCTIONS } from "@/lib/form";
+import * as ethers from "ethers";
+import { Label } from "@/components/ui/label";
+import { getLCContractAddress } from "@/lib/consts";
 
 const formSchema = z.object({
   address: z.string({
@@ -31,6 +38,7 @@ const formSchema = z.object({
 
 export default function SellerLCs() {
   const { address: walletAddress, isConnected } = useAccount();
+  const { chain } = useNetwork();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,38 +62,52 @@ export default function SellerLCs() {
     isLoading,
     error,
   } = useContractRead({
-    address: ZKLC_CONTRACT_ADDRESS,
+    address: getLCContractAddress(chain?.id),
     abi: LCContractABI.abi,
     functionName: "getLC",
     args: [address],
     enabled: !!address && !isEmptyAddress(address),
   });
 
+  const {
+    data: isLCAccepted,
+    isError: isLCAcceptedError,
+    isLoading: isLCAcceptedLoading,
+    error: lCAcceptedError,
+  } = useContractRead({
+    address: getLCContractAddress(chain?.id),
+    abi: LCContractABI.abi,
+    functionName: "isLCAccepted",
+    args: [address],
+    enabled: !!address && !isEmptyAddress(address),
+    watch: true,
+  });
+
   const data = lcData as any;
 
   const {
     data: approveLCData,
-    isLoading: isAproveLCLoading,
+    isLoading: isApproveLCLoading,
     isSuccess: isApproveLCSuccess,
     writeAsync: approveLCAsync,
   } = useContractWrite({
-    address: ZKLC_CONTRACT_ADDRESS,
+    address: getLCContractAddress(chain?.id),
     abi: LCContractABI.abi, // TODO: fix type
     functionName: "acceptLC",
     args: [address],
   });
 
   const {
-    data: acceptedLCData,
-    isError: isAcceptedLCError,
-    isLoading: acceptedLcLoading,
-    error: acceptedLCError,
-  } = useContractRead({
-    address: ZKLC_CONTRACT_ADDRESS,
-    abi: LCContractABI.abi,
-    functionName: "acceptedLC",
-    args: [address],
-    watch: true,
+    data: completeLCData,
+    isLoading: isCompleteLCLoading,
+    isSuccess: isCompleteLCSuccess,
+    isError: isCompleteLCError,
+    error: completeLCError,
+    writeAsync: completeLCAsync,
+  } = useContractWrite({
+    address: getLCContractAddress(chain?.id),
+    abi: LCContractABI.abi, // TODO: fix type
+    functionName: "completeLC",
   });
 
   const { toast } = useToast();
@@ -103,6 +125,45 @@ export default function SellerLCs() {
     if (isApproveLCSuccess) {
       toast({
         title: "LC Approved",
+        variant: "success",
+      });
+    }
+  };
+
+  const onCompleteLCClick = async () => {
+    // Complete LC
+    const a = [0, 0];
+    const b = [
+      [0, 0],
+      [0, 0],
+    ];
+    const c = [0, 0];
+    const siganls = [BigInt(address), 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    try {
+      await completeLCAsync({
+        args: [a, b, c, siganls],
+      });
+
+      if (isCompleteLCSuccess) {
+        toast({
+          title: "LC Completed",
+          variant: "success",
+        });
+      }
+
+      if (isCompleteLCError) {
+        toast({
+          title: "Failed to Complete LC",
+          description: completeLCError?.message,
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Failed to Complete LC",
+        description: (err as any)?.message,
+        variant: "destructive",
       });
     }
   };
@@ -304,23 +365,68 @@ export default function SellerLCs() {
 
       {isConnected && data && !isErrorOREmptyData && !isLoading ? (
         <div className="flex flex-col gap-2">
-          {!isErrorOREmptyData && !isLoading ? (
-            <Button
-              className="w-full"
-              size="lg"
-              onClick={onApproveLCClick}
-              disabled={!!acceptedLCData}
-            >
-              Approve LC
-            </Button>
-          ) : null}
+          {!isLCAccepted ? (
+            <>
+              {!isErrorOREmptyData && !isLoading ? (
+                <Button
+                  className="w-full"
+                  size="lg"
+                  onClick={onApproveLCClick}
+                  disabled={!!isLCAccepted}
+                >
+                  {!isApproveLCLoading ? (
+                    "Approve LC"
+                  ) : (
+                    <>
+                      <Loader className="animate-spin" />
+                    </>
+                  )}
+                </Button>
+              ) : null}
 
-          {!!acceptedLCData ? (
-            <p className="text-base text-emerald-600 font-bold flex gap-2 items-center">
-              <Check />
-              LC has been approved
-            </p>
-          ) : null}
+              {!!isLCAccepted ? (
+                <p className="text-base text-emerald-600 font-bold flex gap-2 items-center">
+                  <Check />
+                  LC has been approved
+                </p>
+              ) : null}
+            </>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <h4 className="font-bold text-foreground text-2xl">
+                Complete LC
+              </h4>
+
+              <div className="flex flex-col gap-2 w-full">
+                <Label>Email</Label>
+                <Input type="email" placeholder="abc@gmail.com" />
+              </div>
+
+              {!isErrorOREmptyData && !isLoading ? (
+                <Button
+                  className="w-full"
+                  size="lg"
+                  onClick={onCompleteLCClick}
+                  disabled={isCompleteLCLoading || isCompleteLCSuccess}
+                >
+                  {!isCompleteLCLoading ? (
+                    "Complete LC"
+                  ) : (
+                    <>
+                      <Loader className="animate-spin" />
+                    </>
+                  )}
+                </Button>
+              ) : null}
+
+              {isCompleteLCSuccess ? (
+                <p className="text-base text-emerald-600 font-bold flex gap-2 items-center">
+                  <Check />
+                  LC has been completed
+                </p>
+              ) : null}
+            </div>
+          )}
         </div>
       ) : null}
     </div>

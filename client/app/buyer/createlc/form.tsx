@@ -27,7 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, Check, Loader } from "lucide-react";
+import { CalendarIcon, Check, Loader, RocketIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -41,10 +41,11 @@ import {
 
 import LCContractABI from "@/contracts/LCContract.json";
 import { useToast } from "@/components/ui/use-toast";
-import { USDC_MOCK_ADDRESS, ZKLC_CONTRACT_ADDRESS } from "@/lib/consts";
+import { getLCContractAddress, getUSDCContractAddress } from "@/lib/consts";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useState } from "react";
 import { CONFIRMATION_INSTRUCTIONS } from "@/lib/form";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const formSchema = z.object({
   applicableRule: z.string({
@@ -141,19 +142,26 @@ export const CreateLCForm = () => {
   });
 
   const { address: walletAddress, isConnected } = useAccount();
+  const { chain } = useNetwork();
+
+  console.log(chain);
+
+  console.log({
+    LC: getLCContractAddress(chain?.id),
+    USDC: getUSDCContractAddress(chain?.id),
+  });
 
   const onMockDataClick = () => {
     form.reset(MOCK_DATA);
   };
 
   const { data, isLoading, isSuccess, writeAsync } = useContractWrite({
-    address: ZKLC_CONTRACT_ADDRESS,
+    // address: CONTRACT_ADDRESSES[chainId]?.ZKLC_CONTRACT_ADDRESS,
+    address: getLCContractAddress(chain?.id),
     abi: LCContractABI.abi, // TODO: fix type
     functionName: "createLC",
     // functionName: "acceptLC",
   });
-
-  const { chain } = useNetwork();
 
   const { data: walletClient } = useWalletClient({
     chainId: chain?.id || undefined,
@@ -165,7 +173,7 @@ export const CreateLCForm = () => {
     isSuccess: allowanceIsSuccess,
     writeAsync: writeAllowanceAsync,
   } = useContractWrite({
-    address: USDC_MOCK_ADDRESS,
+    address: getUSDCContractAddress(chain?.id),
     abi: erc20ABI, // TODO: fix type
     functionName: "approve",
   });
@@ -180,7 +188,8 @@ export const CreateLCForm = () => {
     await writeAllowanceAsync({
       args: [
         // walletAddress, //owner
-        ZKLC_CONTRACT_ADDRESS, //spender
+        // ZKLC_CONTRACT_ADDRESS, //spender
+        getLCContractAddress(chain?.id),
         BigInt(
           (Number(form.getValues("currencyAmount")) || 0) * Math.pow(10, 6)
         ),
@@ -191,16 +200,18 @@ export const CreateLCForm = () => {
       title: `Successfully Approved USDC`,
       variant: "success",
       // description: "Friday, February 10, 2023 at 5:57 PM",
-      // action: <ToastAction altText="Goto schedule to undo">Undo</ToastAction>,
+      // action: <ToastAction altText="Gotochain?.id schedule to undo">Undo</ToastAction>,
     });
 
     setTokenApproved(true);
   };
 
   // 2. Define a submit handler.
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onFormSubmit = async () => {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
+
+    const values = form.getValues();
 
     console.log("values", values);
 
@@ -273,7 +284,7 @@ export const CreateLCForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(() => {})} className="space-y-8">
         <div className="flex w-full justify-end">
           <Button type="button" variant="outline" onClick={onMockDataClick}>
             Mock Data
@@ -584,7 +595,11 @@ export const CreateLCForm = () => {
 
         {!isConnected ? <ConnectButton /> : null}
         {isConnected && !tokenApproved ? (
-          <Button onClick={approveToken} disabled={allowanceIsLoading}>
+          <Button
+            onClick={approveToken}
+            disabled={allowanceIsLoading}
+            className="w-full"
+          >
             {!allowanceIsLoading ? (
               <>
                 Approve
@@ -595,16 +610,24 @@ export const CreateLCForm = () => {
             )}
           </Button>
         ) : null}
-        {isConnected && tokenApproved ? (
-          <Button type="submit" disabled={!writeAsync || isLoading}>
+        {isConnected && tokenApproved && !isSuccess ? (
+          <Button
+            // type="submit"
+            onClick={onFormSubmit}
+            disabled={
+              !writeAsync || isLoading || allowanceIsLoading || isSuccess
+            }
+            className="w-full"
+          >
             {!isLoading ? "Submit" : <Loader className="animate-spin" />}
           </Button>
         ) : null}
         {isSuccess ? (
-          <p className="text-emerald-500 font-bold flex gap-2 items-center text-base">
-            <Check />
-            LC Created
-          </p>
+          <Alert variant="success">
+            <RocketIcon className="h-4 w-4" />
+            <AlertTitle>LC Created!</AlertTitle>
+            <AlertDescription>LC Created Successfully</AlertDescription>
+          </Alert>
         ) : null}
       </form>
     </Form>

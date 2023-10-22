@@ -12,12 +12,13 @@ import {
   ledgerWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
-import { goerli, hardhat } from "wagmi/chains";
+import { goerli, hardhat, scrollSepolia } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
     goerli,
+    scrollSepolia,
     ...(process.env.NODE_ENV === "development" ? [hardhat] : []),
     // ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === "true" ? [goerli] : []),
   ],
