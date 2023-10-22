@@ -26,7 +26,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { Check, Loader } from "lucide-react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { CONFIRMATION_INSTRUCTIONS } from "@/lib/form";
-import * as ethers from "ethers";
 import { Label } from "@/components/ui/label";
 import { getLCContractAddress } from "@/lib/consts";
 
