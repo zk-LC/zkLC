@@ -97,19 +97,6 @@ export default function SellerLCs() {
     args: [address],
   });
 
-  const {
-    data: completeLCData,
-    isLoading: isCompleteLCLoading,
-    isSuccess: isCompleteLCSuccess,
-    isError: isCompleteLCError,
-    error: completeLCError,
-    writeAsync: completeLCAsync,
-  } = useContractWrite({
-    address: getLCContractAddress(chain?.id),
-    abi: LCContractABI.abi, // TODO: fix type
-    functionName: "completeLC",
-  });
-
   const { toast } = useToast();
 
   const isErrorOREmptyData =
