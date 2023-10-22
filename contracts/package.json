@@ -13,6 +13,7 @@
     "compile": "hardhat compile",
     "coverage": "yarn clean && yarn build && npx hardhat coverage",
     "deploy:localhost": "npx hardhat deploy --network localhost",
+    "deploy:scroll": "npx hardhat deploy --network scroll_sepolia",
     "deploy:goerli": "npx hardhat deploy --network goerli",
     "etherscan:goerli": "yarn hardhat --network goerli etherscan-verify",
     "importVerifier": "rm -rf ./contracts/verifiers/ && cp -r ../circuits-circom/contracts ./contracts/verifiers",

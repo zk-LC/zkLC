@@ -39,6 +39,12 @@ const config: HardhatUserConfig = {
         `0x${process.env.GOERLI_DEPLOY_PRIVATE_KEY}`,
       ],
     },
+    scroll_sepolia: {
+      url: "https://sepolia-rpc.scroll.io/",
+      accounts: [
+        `0x${process.env.GOERLI_DEPLOY_PRIVATE_KEY}`,
+      ],
+    }
   },
   verify: {
     etherscan: {
