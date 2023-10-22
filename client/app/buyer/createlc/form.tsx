@@ -122,7 +122,7 @@ const MOCK_DATA: z.infer<typeof formSchema> = {
   portOfLoading: "Chennai",
   portOfDischarge: "London",
   descriptionForGoodsAndServices: "Description of Goods and Servcies",
-  dateAndPlaceForExpiry: new Date("2023-10-20"),
+  dateAndPlaceForExpiry: new Date("2023-10-23"),
   confirmationInstructions: "0",
 };
 
