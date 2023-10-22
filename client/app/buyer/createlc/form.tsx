@@ -136,7 +136,6 @@ export const CreateLCForm = () => {
 
       // ************************************ //
       // TESTING
-
       ...(process.env.NODE_ENV === "development" ? MOCK_DATA : {}),
     },
   });
@@ -554,6 +553,7 @@ export const CreateLCForm = () => {
         <FormField
           control={form.control}
           name="confirmationInstructions"
+          defaultValue="0"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Confirmation Instructions</FormLabel>
