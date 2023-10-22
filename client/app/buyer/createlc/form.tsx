@@ -112,6 +112,19 @@ const formSchema = z.object({
 //   })
 // );
 
+const MOCK_DATA: z.infer<typeof formSchema> = {
+  applicableRule: "EUCP LATEST VERSION",
+  applicantIrlAddress: "bangalore, India",
+  beneficiaryIrlAddress: "London, UK",
+  beneficiaryEthAddress: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  currencyAmount: "10000",
+  portOfLoading: "Chennai",
+  portOfDischarge: "London",
+  descriptionForGoodsAndServices: "Description of Goods and Servcies",
+  dateAndPlaceForExpiry: new Date("2023-10-20"),
+  confirmationInstructions: "0",
+};
+
 export const CreateLCForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -123,24 +136,15 @@ export const CreateLCForm = () => {
       // ************************************ //
       // TESTING
 
-      ...(process.env.NODE_ENV === "development"
-        ? {
-            applicableRule: "EUCP LATEST VERSION",
-            applicantIrlAddress: "bangalore, India",
-            beneficiaryIrlAddress: "London, UK",
-            beneficiaryEthAddress: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-            currencyAmount: "10000",
-            portOfLoading: "Chennai",
-            portOfDischarge: "London",
-            descriptionForGoodsAndServices: "Description of Goods and Servcies",
-            dateAndPlaceForExpiry: new Date("2023-10-20"),
-            confirmationInstructions: "0",
-          }
-        : {}),
+      ...(process.env.NODE_ENV === "development" ? MOCK_DATA : {}),
     },
   });
 
   const { address: walletAddress, isConnected } = useAccount();
+
+  const onMockDataClick = () => {
+    form.reset(MOCK_DATA);
+  };
 
   const { data, isLoading, isSuccess, writeAsync } = useContractWrite({
     address: ZKLC_CONTRACT_ADDRESS,
@@ -270,6 +274,12 @@ export const CreateLCForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <div className="flex w-full justify-end">
+          <Button type="button" variant="outline" onClick={onMockDataClick}>
+            Mock Data
+          </Button>
+        </div>
+
         <FormField
           control={form.control}
           name="applicableRule"
@@ -493,7 +503,7 @@ export const CreateLCForm = () => {
                     selected={field.value}
                     onSelect={field.onChange}
                     disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
+                      date < new Date() || date < new Date("1900-01-01")
                     }
                     initialFocus
                   />
