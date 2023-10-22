@@ -28,6 +28,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { AVAILABLE_WITH_BY, CONFIRMATION_INSTRUCTIONS } from "@/lib/form";
 import { Label } from "@/components/ui/label";
 import { getLCContractAddress } from "@/lib/consts";
+import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
   address: z.string({
@@ -402,7 +403,7 @@ export default function SellerLCs() {
 
               <div className="flex flex-col gap-2 w-full">
                 <Label>Email</Label>
-                <Input type="email" placeholder="abc@gmail.com" />
+                <Textarea className="h-[300px]" placeholder="" />
               </div>
 
               {!isErrorOREmptyData && !isLoading ? (
