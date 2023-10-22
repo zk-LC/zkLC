@@ -151,7 +151,7 @@ export default function SellerLCs() {
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-foreground/70">
-                Additional Conditions
+                Additional Conditions (47A)
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
                 {data.additionalConditions}
@@ -160,7 +160,7 @@ export default function SellerLCs() {
 
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-foreground/70">
-                Applicant
+                Applicant (50)
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
                 ETH Address: {data.applicant.addressEOA}
@@ -171,7 +171,7 @@ export default function SellerLCs() {
 
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-foreground/70">
-                Beneficiary
+                Beneficiary (59)
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
                 ETH Address: {data.beneficiary.addressEOA}
@@ -182,7 +182,7 @@ export default function SellerLCs() {
 
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-foreground/70">
-                Available With By
+                Available With By (41A)
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
                 {data.availableWithBy}
@@ -191,7 +191,7 @@ export default function SellerLCs() {
 
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-foreground/70">
-                Confirmation Instructions
+                Confirmation Instructions (49)
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
                 {
@@ -203,7 +203,9 @@ export default function SellerLCs() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <p className="text-sm font-medium text-foreground/70">Currency</p>
+              <p className="text-sm font-medium text-foreground/70">
+                Currency (32B)
+              </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
                 {data.currencyDetails.amount.toString()}{" "}
                 {data.currencyDetails.currencyCode}
@@ -212,7 +214,7 @@ export default function SellerLCs() {
 
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-foreground/70">
-                Description of Goods and Services
+                Description of Goods and Services (45A)
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
                 {data.descriptionOfGoodsAndOrServices}
@@ -221,7 +223,7 @@ export default function SellerLCs() {
 
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-foreground/70">
-                Documents Required
+                Documents Required (46A)
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
                 {data.documentsRequired}
@@ -242,7 +244,7 @@ export default function SellerLCs() {
 
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-foreground/70">
-                Period for Presentation
+                Period for Presentation (48)
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
                 {String(data.periodForPresentation)}
@@ -251,7 +253,7 @@ export default function SellerLCs() {
 
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-foreground/70">
-                Doc Credit Number
+                Doc Credit Number (20)
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
                 {String(data.docCreditNumber)}
@@ -260,7 +262,7 @@ export default function SellerLCs() {
 
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-foreground/70">
-                Form of Doc Credit
+                Form of Doc Credit (40A)
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
                 {/* {data.formOfDocCredit} */}
@@ -270,19 +272,10 @@ export default function SellerLCs() {
 
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-foreground/70">
-                Sequence of Total
+                Sequence of Total (27)
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
                 {String(data.sequenceOfTotal)}
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <p className="text-sm font-medium text-foreground/70">
-                Period for Presentation
-              </p>
-              <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-                {String(data.periodForPresentation)}
               </p>
             </div>
 
