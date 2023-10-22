@@ -17,6 +17,12 @@ export const CONTRACT_ADDRESSES = {
     USDC_MOCK_ADDRESS: process.env
       .NEXT_PUBLIC_USDC_MOCK_ADDRESS_MANTLE as `0x${string}`,
   },
+  1101: {
+    ZKLC_CONTRACT_ADDRESS: process.env
+      .NEXT_PUBLIC_ZKLC_CONTRACT_ADDRESS_ZKEVM as `0x${string}`,
+    USDC_MOCK_ADDRESS: process.env
+      .NEXT_PUBLIC_USDC_MOCK_ADDRESS_ZKEVM as `0x${string}`,
+  },
   31337: {
     ZKLC_CONTRACT_ADDRESS: process.env
       .NEXT_PUBLIC_ZKLC_CONTRACT_ADDRESS_HARDHAT as `0x${string}`,
