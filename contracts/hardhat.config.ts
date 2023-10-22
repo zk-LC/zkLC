@@ -44,6 +44,12 @@ const config: HardhatUserConfig = {
       accounts: [
         `0x${process.env.GOERLI_DEPLOY_PRIVATE_KEY}`,
       ],
+    },
+    mantle: {
+      url: "https://rpc.testnet.mantle.xyz",
+      accounts: [
+        `0x${process.env.GOERLI_DEPLOY_PRIVATE_KEY}`,
+      ],
     }
   },
   verify: {
