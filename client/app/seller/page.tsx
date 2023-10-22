@@ -99,7 +99,7 @@ export default function SellerLCs() {
   const [isApproving, setIsApproving] = useState(false);
 
   const onApproveLCClick = async () => {
-    setIsApproving(false);
+    setIsApproving(true);
 
     const tx = await approveLCAsync();
 
@@ -114,7 +114,7 @@ export default function SellerLCs() {
       });
     }
 
-    setIsApproving(true);
+    setIsApproving(false);
   };
 
   return (

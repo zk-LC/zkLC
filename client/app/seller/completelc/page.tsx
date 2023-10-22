@@ -68,7 +68,7 @@ export default function SellerCompleteLC() {
   const { toast } = useToast();
 
   const onCompleteLCClick = async () => {
-    setIsCompleting(false);
+    setIsCompleting(true);
 
     // Complete LC
     const a = [0, 0];
@@ -110,7 +110,7 @@ export default function SellerCompleteLC() {
       });
     }
 
-    setIsCompleting(true);
+    setIsCompleting(false);
   };
 
   return (
@@ -147,7 +147,6 @@ export default function SellerCompleteLC() {
         <Textarea className="h-[300px]" placeholder="" />
       </div>
 
-      {/* {!isErrorOREmptyData && !isLoading ? ( */}
       <Button
         className="w-full"
         size="lg"
@@ -162,7 +161,6 @@ export default function SellerCompleteLC() {
           </>
         )}
       </Button>
-      {/* ) : null} */}
 
       {isCompleteLCSuccess && !isCompleting ? (
         <Alert variant="success">
