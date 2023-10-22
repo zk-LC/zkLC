@@ -116,10 +116,10 @@ const formSchema = z.object({
 
 const MOCK_DATA: z.infer<typeof formSchema> = {
   applicableRule: "EUCP LATEST VERSION",
-  applicantIrlAddress: "bangalore, India",
+  applicantIrlAddress: "Bangalore, India",
   beneficiaryIrlAddress: "London, UK",
   beneficiaryEthAddress: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-  currencyAmount: "10000",
+  currencyAmount: "10",
   portOfLoading: "Chennai",
   portOfDischarge: "London",
   descriptionForGoodsAndServices: "Description of Goods and Servcies",
@@ -143,13 +143,6 @@ export const CreateLCForm = () => {
 
   const { address: walletAddress, isConnected } = useAccount();
   const { chain } = useNetwork();
-
-  console.log(chain);
-
-  console.log({
-    LC: getLCContractAddress(chain?.id),
-    USDC: getUSDCContractAddress(chain?.id),
-  });
 
   const onMockDataClick = () => {
     form.reset(MOCK_DATA);
@@ -184,6 +177,11 @@ export const CreateLCForm = () => {
 
   const approveToken = async () => {
     if (!walletAddress) return;
+
+    console.log(
+      "GN",
+      BigInt((Number(form.getValues("currencyAmount")) || 0) * Math.pow(10, 6))
+    );
 
     await writeAllowanceAsync({
       args: [
@@ -294,6 +292,7 @@ export const CreateLCForm = () => {
         <FormField
           control={form.control}
           name="applicableRule"
+          defaultValue="EUCP LATEST VERSION"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Applicable Rules</FormLabel>

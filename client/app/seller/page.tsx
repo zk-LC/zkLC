@@ -25,7 +25,7 @@ import { isEmptyAddress } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { Check, Loader } from "lucide-react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { CONFIRMATION_INSTRUCTIONS } from "@/lib/form";
+import { AVAILABLE_WITH_BY, CONFIRMATION_INSTRUCTIONS } from "@/lib/form";
 import { Label } from "@/components/ui/label";
 import { getLCContractAddress } from "@/lib/consts";
 
@@ -245,7 +245,7 @@ export default function SellerLCs() {
                 Available With By (41A)
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-                {data.availableWithBy}
+                {AVAILABLE_WITH_BY[data.availableWithBy]}
               </p>
             </div>
 
