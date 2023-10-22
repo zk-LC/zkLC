@@ -27,7 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Check, Loader } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -42,6 +42,8 @@ import {
 import LCContractABI from "@/contracts/LCContract.json";
 import { useToast } from "@/components/ui/use-toast";
 import { USDC_MOCK_ADDRESS, ZKLC_CONTRACT_ADDRESS } from "@/lib/consts";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useState } from "react";
 
 const formSchema = z.object({
   applicableRule: z.string({
@@ -138,7 +140,7 @@ export const CreateLCForm = () => {
     },
   });
 
-  const { address: walletAddress } = useAccount();
+  const { address: walletAddress, isConnected } = useAccount();
 
   const { data, isLoading, isSuccess, writeAsync } = useContractWrite({
     address: ZKLC_CONTRACT_ADDRESS,
@@ -165,6 +167,31 @@ export const CreateLCForm = () => {
   });
 
   const { toast } = useToast();
+
+  const [tokenApproved, setTokenApproved] = useState(false);
+
+  const approveToken = async () => {
+    if (!walletAddress) return;
+
+    await writeAllowanceAsync({
+      args: [
+        // walletAddress, //owner
+        ZKLC_CONTRACT_ADDRESS, //spender
+        BigInt(
+          (Number(form.getValues("currencyAmount")) || 0) * Math.pow(10, 6)
+        ),
+      ],
+    });
+
+    toast({
+      title: `Successfully Approved USDC`,
+      variant: "success",
+      // description: "Friday, February 10, 2023 at 5:57 PM",
+      // action: <ToastAction altText="Goto schedule to undo">Undo</ToastAction>,
+    });
+
+    setTokenApproved(true);
+  };
 
   // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -233,8 +260,9 @@ export const CreateLCForm = () => {
     });
 
     toast({
-      title: "Scheduled: Catch up ",
-      description: "Friday, February 10, 2023 at 5:57 PM",
+      title: "Created Letter of Credit",
+      // description: "Friday, February 10, 2023 at 5:57 PM",
+      variant: "success",
       // action: <ToastAction altText="Goto schedule to undo">Undo</ToastAction>,
     });
   };
@@ -539,9 +567,30 @@ export const CreateLCForm = () => {
           )}
         />
 
-        <Button type="submit" disabled={!writeAsync || isLoading}>
-          Submit
-        </Button>
+        {!isConnected ? <ConnectButton /> : null}
+        {isConnected && !tokenApproved ? (
+          <Button onClick={approveToken} disabled={allowanceIsLoading}>
+            {!allowanceIsLoading ? (
+              <>
+                Approve
+                {/* {form.watch("currencyAmount")} */} USDC
+              </>
+            ) : (
+              <Loader className="animate-spin" />
+            )}
+          </Button>
+        ) : null}
+        {isConnected && tokenApproved ? (
+          <Button type="submit" disabled={!writeAsync || isLoading}>
+            {!isLoading ? "Submit" : <Loader className="animate-spin" />}
+          </Button>
+        ) : null}
+        {isSuccess ? (
+          <p className="text-emerald-500 font-bold flex gap-2 items-center text-base">
+            <Check />
+            LC Created
+          </p>
+        ) : null}
       </form>
     </Form>
   );

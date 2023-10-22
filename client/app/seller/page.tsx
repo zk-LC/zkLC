@@ -1,7 +1,7 @@
 "use client";
 
-import { USDC_MOCK_ADDRESS, ZKLC_CONTRACT_ADDRESS } from "@/lib/consts";
-import { useContractRead, useContractWrite } from "wagmi";
+import { ZKLC_CONTRACT_ADDRESS } from "@/lib/consts";
+import { useAccount, useContractRead, useContractWrite } from "wagmi";
 import LCContractABI from "@/contracts/LCContract.json";
 import {
   Form,
@@ -18,9 +18,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isEmptyAddress } from "@/lib/utils";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Check } from "lucide-react";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const formSchema = z.object({
   address: z.string({
@@ -29,6 +29,8 @@ const formSchema = z.object({
 });
 
 export default function SellerLCs() {
+  const { address: walletAddress, isConnected } = useAccount();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -299,7 +301,9 @@ export default function SellerLCs() {
         ) : null}
       </div>
 
-      {data && !isErrorOREmptyData && !isLoading ? (
+      {!isConnected ? <ConnectButton /> : null}
+
+      {isConnected && data && !isErrorOREmptyData && !isLoading ? (
         <div className="flex flex-col gap-2">
           {!isErrorOREmptyData && !isLoading ? (
             <Button
