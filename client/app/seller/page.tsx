@@ -21,6 +21,7 @@ import { isEmptyAddress } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 import { Check } from "lucide-react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { CONFIRMATION_INSTRUCTIONS } from "@/lib/form";
 
 const formSchema = z.object({
   address: z.string({
@@ -193,7 +194,11 @@ export default function SellerLCs() {
                 Confirmation Instructions
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-                {data.confirmationInstructions}
+                {
+                  CONFIRMATION_INSTRUCTIONS[
+                    (data.confirmationInstructions as "0", "1", "2")
+                  ]
+                }
               </p>
             </div>
 
@@ -258,7 +263,8 @@ export default function SellerLCs() {
                 Form of Doc Credit
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-                {data.formOfDocCredit}
+                {/* {data.formOfDocCredit} */}
+                Irrevocable
               </p>
             </div>
 

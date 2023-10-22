@@ -44,6 +44,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { USDC_MOCK_ADDRESS, ZKLC_CONTRACT_ADDRESS } from "@/lib/consts";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useState } from "react";
+import { CONFIRMATION_INSTRUCTIONS } from "@/lib/form";
 
 const formSchema = z.object({
   applicableRule: z.string({
@@ -563,9 +564,13 @@ export const CreateLCForm = () => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="0">CONFIRM</SelectItem>
-                  <SelectItem value="1">MAY ADD</SelectItem>
-                  <SelectItem value="2">WITHOUT</SelectItem>
+                  {Object.entries(CONFIRMATION_INSTRUCTIONS).map(
+                    ([key, value], i) => (
+                      <SelectItem key={i} value={key}>
+                        {value}
+                      </SelectItem>
+                    )
+                  )}
                 </SelectContent>
               </Select>
               {/* <FormDescription>
