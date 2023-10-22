@@ -245,7 +245,11 @@ export default function SellerLCs() {
                 Available With By (41A)
               </p>
               <p className="text-foreground/90 text-base font-medium px-3 py-2 rounded-xl bg-foreground/10">
-                {AVAILABLE_WITH_BY[data.availableWithBy]}
+                {
+                  AVAILABLE_WITH_BY[
+                    (data.availableWithBy as "0", "1", "2", "3", "5")
+                  ]
+                }
               </p>
             </div>
 
