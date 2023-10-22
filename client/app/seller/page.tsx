@@ -5,6 +5,7 @@ import {
   useContractRead,
   useContractWrite,
   useNetwork,
+  usePublicClient,
 } from "wagmi";
 import LCContractABI from "@/contracts/LCContract.json";
 import {
@@ -29,6 +30,7 @@ import { AVAILABLE_WITH_BY, CONFIRMATION_INSTRUCTIONS } from "@/lib/form";
 import { Label } from "@/components/ui/label";
 import { getLCContractAddress } from "@/lib/consts";
 import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
 
 const formSchema = z.object({
   address: z.string({
@@ -69,20 +71,6 @@ export default function SellerLCs() {
     enabled: !!address && !isEmptyAddress(address),
   });
 
-  const {
-    data: isLCAccepted,
-    isError: isLCAcceptedError,
-    isLoading: isLCAcceptedLoading,
-    error: lCAcceptedError,
-  } = useContractRead({
-    address: getLCContractAddress(chain?.id),
-    abi: LCContractABI.abi,
-    functionName: "isLCAccepted",
-    args: [address],
-    enabled: !!address && !isEmptyAddress(address),
-    watch: true,
-  });
-
   const data = lcData as any;
 
   const {
@@ -99,6 +87,8 @@ export default function SellerLCs() {
 
   const { toast } = useToast();
 
+  const publicClient = usePublicClient();
+
   const isErrorOREmptyData =
     isError || isEmptyAddress(data?.applicant?.addressEOA);
 
@@ -106,8 +96,16 @@ export default function SellerLCs() {
     // console.log("submit", values);
   };
 
+  const [isApproving, setIsApproving] = useState(false);
+
   const onApproveLCClick = async () => {
-    await approveLCAsync();
+    setIsApproving(false);
+
+    const tx = await approveLCAsync();
+
+    await publicClient.waitForTransactionReceipt({
+      hash: tx.hash,
+    });
 
     if (isApproveLCSuccess) {
       toast({
@@ -115,6 +113,8 @@ export default function SellerLCs() {
         variant: "success",
       });
     }
+
+    setIsApproving(true);
   };
 
   return (
@@ -324,9 +324,9 @@ export default function SellerLCs() {
               className="w-full"
               size="lg"
               onClick={onApproveLCClick}
-              disabled={!!approveLCData}
+              disabled={!!approveLCData || isApproving}
             >
-              {!isApproveLCLoading ? (
+              {!isApproving ? (
                 "Approve LC"
               ) : (
                 <>
@@ -336,7 +336,7 @@ export default function SellerLCs() {
             </Button>
           ) : null}
 
-          {!!approveLCData ? (
+          {!!approveLCData && !isApproving ? (
             <p className="text-base text-emerald-600 font-bold flex gap-2 items-center">
               <Check />
               LC has been approved

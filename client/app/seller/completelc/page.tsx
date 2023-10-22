@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { getLCContractAddress } from "@/lib/consts";
 import { Loader, RocketIcon } from "lucide-react";
-import { useContractWrite, useNetwork } from "wagmi";
+import { useContractWrite, useNetwork, usePublicClient } from "wagmi";
 import LCContractABI from "@/contracts/LCContract.json";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useState } from "react";
 
 const formSchema = z.object({
   address: z.string({
@@ -30,6 +31,10 @@ const formSchema = z.object({
 
 export default function SellerCompleteLC() {
   const { chain } = useNetwork();
+
+  const publicClient = usePublicClient();
+
+  const [isCompleting, setIsCompleting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,6 +68,8 @@ export default function SellerCompleteLC() {
   const { toast } = useToast();
 
   const onCompleteLCClick = async () => {
+    setIsCompleting(false);
+
     // Complete LC
     const a = [0, 0];
     const b = [
@@ -73,8 +80,12 @@ export default function SellerCompleteLC() {
     const siganls = [BigInt(address), 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     try {
-      await completeLCAsync({
+      const tx = await completeLCAsync({
         args: [a, b, c, siganls],
+      });
+
+      await publicClient.waitForTransactionReceipt({
+        hash: tx.hash,
       });
 
       if (isCompleteLCSuccess) {
@@ -98,6 +109,8 @@ export default function SellerCompleteLC() {
         variant: "destructive",
       });
     }
+
+    setIsCompleting(true);
   };
 
   return (
@@ -139,9 +152,9 @@ export default function SellerCompleteLC() {
         className="w-full"
         size="lg"
         onClick={onCompleteLCClick}
-        disabled={isCompleteLCLoading || isCompleteLCSuccess}
+        disabled={isCompleting || isCompleteLCSuccess}
       >
-        {!isCompleteLCLoading ? (
+        {!isCompleting ? (
           "Complete LC"
         ) : (
           <>
@@ -151,7 +164,7 @@ export default function SellerCompleteLC() {
       </Button>
       {/* ) : null} */}
 
-      {isCompleteLCSuccess ? (
+      {isCompleteLCSuccess && !isCompleting ? (
         <Alert variant="success">
           <RocketIcon className="h-4 w-4" />
           <AlertTitle>LC Completed!</AlertTitle>

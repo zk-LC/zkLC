@@ -178,18 +178,13 @@ export const CreateLCForm = () => {
   const [tokenApproved, setTokenApproved] = useState(false);
   const [tokenApproving, setTokenApproving] = useState(false);
 
+  const [isCreatingLC, setIsCreatingLC] = useState(false);
+
   const approveToken = async () => {
     if (!walletAddress) return;
 
     try {
       setTokenApproving(true);
-
-      console.log(
-        "GN",
-        BigInt(
-          (Number(form.getValues("currencyAmount")) || 0) * Math.pow(10, 6)
-        )
-      );
 
       const tx = await writeAllowanceAsync({
         args: [
@@ -232,6 +227,8 @@ export const CreateLCForm = () => {
   const onFormSubmit = async () => {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
+
+    setIsCreatingLC(true);
 
     const values = form.getValues();
 
@@ -291,9 +288,13 @@ export const CreateLCForm = () => {
     //   // account,
     // });
 
-    await writeAsync({
+    const tx = await writeAsync({
       args: contractArgs,
       // args: ["0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266"],
+    });
+
+    await publicClient.waitForTransactionReceipt({
+      hash: tx.hash,
     });
 
     toast({
@@ -302,6 +303,8 @@ export const CreateLCForm = () => {
       variant: "success",
       // action: <ToastAction altText="Goto schedule to undo">Undo</ToastAction>,
     });
+
+    setIsCreatingLC(false);
   };
 
   return (
@@ -638,14 +641,18 @@ export const CreateLCForm = () => {
             // type="submit"
             onClick={onFormSubmit}
             disabled={
-              !writeAsync || isLoading || allowanceIsLoading || isSuccess
+              !writeAsync ||
+              isLoading ||
+              allowanceIsLoading ||
+              isSuccess ||
+              isCreatingLC
             }
             className="w-full"
           >
-            {!isLoading ? "Submit" : <Loader className="animate-spin" />}
+            {!isCreatingLC ? "Submit" : <Loader className="animate-spin" />}
           </Button>
         ) : null}
-        {isSuccess ? (
+        {!isCreatingLC && isSuccess ? (
           <Alert variant="success">
             <RocketIcon className="h-4 w-4" />
             <AlertTitle>LC Created!</AlertTitle>
